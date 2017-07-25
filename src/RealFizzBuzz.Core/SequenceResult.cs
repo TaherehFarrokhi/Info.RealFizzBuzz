@@ -1,13 +1,13 @@
-namespace RealFizzBuzz.Core.UnitTests
+namespace RealFizzBuzz.Core
 {
     public class SequenceResult
     {
         public SequenceResult(string[] sequence)
         {
-            this.Sequence = sequence;
+            Sequence = sequence;
         }
 
-        public string[] Sequence { get; } = new string[] { };
+        public string[] Sequence { get; }
 
         public override string ToString()
         {

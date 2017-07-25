@@ -1,15 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
-namespace RealFizzBuzz.Core.UnitTests
+namespace RealFizzBuzz.Core
 {
-    internal class SequenceGenerator
+    public class SequenceGenerator
     {
-        public SequenceGenerator()
-        {
-        }
-
         public SequenceResult Generate(int lower, int upper)
         {
             if (lower > upper)
@@ -19,15 +13,18 @@ namespace RealFizzBuzz.Core.UnitTests
             return new SequenceResult(sequence);
         }
 
-        private string GenerateSingle(int number) 
+        private string GenerateSingle(int number)
         {
+            if (number.ToString().Contains("3"))
+                return "Lucky";
+            
             if (number % 5 == 0 && number % 3 == 0) 
                 return "FizzBuzz";
 
-            if (number % 5 == 0) 
+            if (number % 5 == 0)
                 return "Buzz";
 
-            if (number % 3 == 0) 
+            if (number % 3 == 0)
                 return "Fizz";
 
             return number.ToString();
