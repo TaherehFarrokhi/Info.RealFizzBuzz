@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace RealFizzBuzz.Core
@@ -7,10 +8,34 @@ namespace RealFizzBuzz.Core
         public SequenceResult Generate(int lower, int upper)
         {
             if (lower > upper)
-                return new SequenceResult(new string[]{});
+                throw new InvalidRangeException(lower, upper);
 
-            var sequence = Enumerable.Range(lower, upper).Select(GenerateSingle).ToArray();
-            return new SequenceResult(sequence);
+            var sequences = Enumerable.Range(lower, upper).Select(GenerateSingle).ToArray();
+            var sequenceOccurances = CalculateSequenceOccurance(sequences);
+            
+            return new SequenceResult(sequences, sequenceOccurances);
+        }
+
+        private string[] CalculateSequenceOccurance(string[] sequences)
+        {
+            var sequenceGroups = new[]
+            {
+                "fizz",
+                "buzz",
+                "fizzbuzz",
+                "lucky",
+            };
+
+            var integerCount = sequences.Count(s => int.TryParse(s, out int test));
+            return sequenceGroups
+                .Select(m => new
+                {
+                    Name = m,
+                    Count = sequences.Count(s => s.Equals(m, StringComparison.CurrentCultureIgnoreCase))
+                })
+                .Union(new[] {new {Name = "integer", Count = integerCount}})
+                .Select(m => $"{m.Name}: {m.Count}")
+                .ToArray();
         }
 
         private string GenerateSingle(int number)
@@ -29,5 +54,7 @@ namespace RealFizzBuzz.Core
 
             return number.ToString();
         }
+        
+        
     }
 }
