@@ -1,21 +1,21 @@
-using System.Collections.Generic;
+using System;
 
 namespace RealFizzBuzz.Core
 {
     public class SequenceResult
     {
-        public SequenceResult(string[] sequence, string[] sequenceOccurances)
+        public SequenceResult(string[] sequences, string[] sequenceOccurances)
         {
-            Sequence = sequence;
-            SequenceOccurances = sequenceOccurances;
+            Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
+            SequenceOccurances = sequenceOccurances ?? throw new ArgumentNullException(nameof(sequenceOccurances));
         }
 
-        public string[] Sequence { get; }
+        public string[] Sequences { get; }
         public string[] SequenceOccurances { get; }
 
-        public override string ToString()
+        public string ToSequenceOutput()
         {
-            return string.Join(" ", Sequence);
+            return string.Join(" ", Sequences);
         }
     }
 }

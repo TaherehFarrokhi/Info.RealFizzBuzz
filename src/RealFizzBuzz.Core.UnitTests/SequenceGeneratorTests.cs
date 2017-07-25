@@ -17,10 +17,10 @@ namespace RealFizzBuzz.Core.UnitTests
             var sut = new SequenceGenerator();
 
             // Act
-            var output = sut.Generate(lower, upper);
+            var actual = sut.Generate(lower, upper);
 
             // Assert
-            Assert.Equal(expected, output.ToString());
+            Assert.Equal(expected, actual.ToSequenceOutput());
         }
 
         [Theory]
@@ -40,11 +40,11 @@ namespace RealFizzBuzz.Core.UnitTests
                 expectedSequenceOccurance.Split(new[] {"|"}, StringSplitOptions.RemoveEmptyEntries);
 
             // Act
-            var output = sut.Generate(lower, upper);
+            var actual = sut.Generate(lower, upper);
 
             // Assert
-            Assert.Equal(expectedSequence, output.ToString());
-            Assert.Equal(expectedOccurance, output.SequenceOccurances);
+            Assert.Equal(expectedSequence, actual.ToSequenceOutput());
+            Assert.Equal(expectedOccurance, actual.SequenceOccurances);
         }
 
         [Theory]

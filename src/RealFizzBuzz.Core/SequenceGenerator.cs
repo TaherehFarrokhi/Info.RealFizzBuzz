@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace RealFizzBuzz.Core
 {
+    //TODO: Needs refactoring to multiple classes.
     public class SequenceGenerator
     {
         public SequenceResult Generate(int lower, int upper)
@@ -16,7 +17,7 @@ namespace RealFizzBuzz.Core
             return new SequenceResult(sequences, sequenceOccurances);
         }
 
-        private string[] CalculateSequenceOccurance(string[] sequences)
+        private static string[] CalculateSequenceOccurance(string[] sequences)
         {
             var sequenceGroups = new[]
             {
@@ -38,7 +39,7 @@ namespace RealFizzBuzz.Core
                 .ToArray();
         }
 
-        private string GenerateSingle(int number)
+        private static string GenerateSingle(int number)
         {
             if (number.ToString().Contains("3"))
                 return "Lucky";
@@ -49,12 +50,7 @@ namespace RealFizzBuzz.Core
             if (number % 5 == 0)
                 return "Buzz";
 
-            if (number % 3 == 0)
-                return "Fizz";
-
-            return number.ToString();
+            return number % 3 == 0 ? "Fizz" : number.ToString();
         }
-        
-        
     }
 }
