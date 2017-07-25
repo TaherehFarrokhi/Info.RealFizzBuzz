@@ -13,4 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RealFizzBuzz.Core\RealFizzBuzz.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="SequenceGeneratorAcceptanceTests.cs" />
+  </ItemGroup>
 </Project>
