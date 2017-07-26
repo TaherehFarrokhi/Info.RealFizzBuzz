@@ -1,64 +1,67 @@
 using System;
+using NSubstitute;
 using Xunit;
 
 namespace RealFizzBuzz.Core.UnitTests
 {
     public class SequenceGeneratorTests
     {
-        [Theory]
-        [InlineData(1, 2, "1 2")]
-        [InlineData(1, 1, "1")]
-        [InlineData(1, 3, "1 2 Lucky")]
-        [InlineData(1, 5, "1 2 Lucky 4 Buzz")]
-        [InlineData(1, 16, "1 2 Lucky 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz Lucky 14 FizzBuzz 16")]
-        public void ReturnTheSequenceCorrectlyWhenRangeIsCorrect(int lower, int upper, string expected)
+        [Fact]
+        public void ReturnTheRightResultWhenTheInputsAreCorrect()
         {
             // Aquire
-            var sut = new SequenceGenerator();
+            var itemGenerator = Substitute.For<IItemGenerator>();
+            itemGenerator.Generate(Arg.Is(3)).Returns("Lucky");
+            itemGenerator.Generate(Arg.Is(2)).Returns("2");
+            itemGenerator.Generate(Arg.Is(1)).Returns("1");
+            
+            var itemGeneratorChainBuilder = Substitute.For<IItemGeneratorChainBuilder>();
+            itemGeneratorChainBuilder.BuildChain().Returns(itemGenerator);
+            
+            var sequenceOccurancecalculator = Substitute.For<ISequenceOccuranceCalculator>();
+            var expectedOccurances = new[]
+            {
+                "fizz: 0",
+                "buzz: 0",
+                "fizzbuzz: 0",
+                "lucky: 1",
+                "integer: 2"
+            };
+            sequenceOccurancecalculator.CalculateOccurances(Arg.Any<string[]>())
+                .Returns(expectedOccurances);
+            
+            var sut = new SequenceGenerator(itemGeneratorChainBuilder, sequenceOccurancecalculator);
 
             // Act
-            var actual = sut.Generate(lower, upper);
+            var actual = sut.Generate(1, 3);
 
             // Assert
-            Assert.Equal(expected, actual.ToSequenceOutput());
+            Assert.Equal("1 2 Lucky", actual.ToSequenceOutput());
+            Assert.Equal(expectedOccurances, actual.SequenceOccurances);
         }
-
-        [Theory]
-        [InlineData(1, 3, "1 2 Lucky", "fizz: 0|buzz: 0|fizzbuzz: 0|lucky: 1|integer: 2")]               
-        [InlineData(1, 1, "1", "fizz: 0|buzz: 0|fizzbuzz: 0|lucky: 0|integer: 1")]               
-        [InlineData(1, 20, 
-            "1 2 Lucky 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz Lucky 14 FizzBuzz 16 17 Fizz 19 Buzz", 
-            "fizz: 4|buzz: 3|fizzbuzz: 1|lucky: 2|integer: 10"
-         )]
-        public void ReturnTheOccuranceOfSequenceResults(int lower, int upper, 
-            string expectedSequence, 
-            string expectedSequenceOccurance)
+        
+        [Fact]
+        public void ThrowArgumentNullExceptionIfFirstArgumentIsNull()
         {
             // Aquire
-            var sut = new SequenceGenerator();
-            var expectedOccurance =
-                expectedSequenceOccurance.Split(new[] {"|"}, StringSplitOptions.RemoveEmptyEntries);
 
             // Act
-            var actual = sut.Generate(lower, upper);
+            var exception = Assert.Throws<ArgumentNullException>(() => new SequenceGenerator(null, new SequenceOccuranceCalculator()));
 
             // Assert
-            Assert.Equal(expectedSequence, actual.ToSequenceOutput());
-            Assert.Equal(expectedOccurance, actual.SequenceOccurances);
-        }
-
-        [Theory]
-        [InlineData(2, 1)]
-        public void ThrowInvalidRangeExceptionWhenTheLowerIsBiggerThanUpper(int lower, int upper)
+            Assert.NotNull(exception);
+        }        
+        
+        [Fact]
+        public void ThrowArgumentNullExceptionIfSecondArgumentIsNull()
         {
             // Aquire
-            var sut = new SequenceGenerator();
 
             // Act
-            var exception = Assert.Throws<InvalidRangeException>(() => sut.Generate(lower, upper));
+            var exception = Assert.Throws<ArgumentNullException>(() => new SequenceGenerator(null, new SequenceOccuranceCalculator()));
 
             // Assert
-            Assert.Equal($"Invalid range error. {lower} is bigger then {upper}", exception.Message);
+            Assert.NotNull(exception);
         }
     }
 }

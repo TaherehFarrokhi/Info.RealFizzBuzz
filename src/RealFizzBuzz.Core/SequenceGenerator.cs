@@ -1,11 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RealFizzBuzz.Core
 {
-    //TODO: Needs refactoring to multiple classes.
     public class SequenceGenerator
     {
+        private readonly IItemGeneratorChainBuilder _itemGeneratorChainBuilder;
+        private readonly ISequenceOccuranceCalculator _sequenceOccurancecalculator;
+
+        public SequenceGenerator(IItemGeneratorChainBuilder itemGeneratorChainBuilder, 
+            ISequenceOccuranceCalculator sequenceOccurancecalculator)
+        {
+            _itemGeneratorChainBuilder = itemGeneratorChainBuilder ?? throw new ArgumentNullException(nameof(itemGeneratorChainBuilder));
+            _sequenceOccurancecalculator = sequenceOccurancecalculator ?? throw new ArgumentNullException(nameof(sequenceOccurancecalculator));
+        }
+        
         public SequenceResult Generate(int lower, int upper)
         {
             if (lower > upper)
@@ -14,43 +24,19 @@ namespace RealFizzBuzz.Core
             var sequences = Enumerable.Range(lower, upper).Select(GenerateSingle).ToArray();
             var sequenceOccurances = CalculateSequenceOccurance(sequences);
             
-            return new SequenceResult(sequences, sequenceOccurances);
+            return new SequenceResult(sequences, sequenceOccurances.ToArray());
         }
 
-        private static string[] CalculateSequenceOccurance(string[] sequences)
+        private IEnumerable<string> CalculateSequenceOccurance(string[] sequences)
         {
-            var sequenceGroups = new[]
-            {
-                "fizz",
-                "buzz",
-                "fizzbuzz",
-                "lucky",
-            };
-
-            var integerCount = sequences.Count(s => int.TryParse(s, out int test));
-            return sequenceGroups
-                .Select(m => new
-                {
-                    Name = m,
-                    Count = sequences.Count(s => s.Equals(m, StringComparison.CurrentCultureIgnoreCase))
-                })
-                .Union(new[] {new {Name = "integer", Count = integerCount}})
-                .Select(m => $"{m.Name}: {m.Count}")
-                .ToArray();
+            return _sequenceOccurancecalculator.CalculateOccurances(sequences);
         }
 
-        private static string GenerateSingle(int number)
+        private string GenerateSingle(int number)
         {
-            if (number.ToString().Contains("3"))
-                return "Lucky";
+            var itemGenerator = _itemGeneratorChainBuilder.BuildChain();
             
-            if (number % 5 == 0 && number % 3 == 0) 
-                return "FizzBuzz";
-
-            if (number % 5 == 0)
-                return "Buzz";
-
-            return number % 3 == 0 ? "Fizz" : number.ToString();
+            return itemGenerator.Generate(number);
         }
     }
 }
